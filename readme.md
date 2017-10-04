@@ -1,3 +1,5 @@
-Home works in tinkoff's fintech school
-author: Max Gusev
+Home work's in tinkoff's fintech school
+
+author: Max Gusev 
+
 Android
