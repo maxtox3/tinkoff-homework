@@ -4,22 +4,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="gusev.max.tinkoff_homework.MainActivity">
+    tools:context="gusev.max.tinkoff_homework.firstPart.FirstPartActivity">
 
-    <Button
-        android:id="@+id/first_part_button"
+    <TextView
+        android:id="@+id/label1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="100dp"
-        android:text="@string/first_part" />
+        android:text="@string/text_for_message" />
+
+    <EditText
+        android:id="@+id/message_edit_text"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/label1"
+        android:layout_centerHorizontal="true"
+        android:textSize="15sp" />
 
     <Button
-        android:id="@+id/second_part_button"
+        android:id="@+id/send_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/first_part_button"
+        android:layout_below="@id/message_edit_text"
         android:layout_centerHorizontal="true"
-        android:text="@string/second_part" />
-
+        android:text="@string/send" />
 </RelativeLayout>

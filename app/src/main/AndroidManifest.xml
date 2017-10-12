@@ -16,6 +16,12 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".firstPart.FirstPartActivity" />
+        <activity android:name=".secondPart.SecondPartActivity" />
+        <activity
+            android:name=".secondPart.SPSecondActivity"
+            android:label="@string/title_activity_spsecond"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

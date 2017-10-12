@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">tinkoff-homework</string>
+    <string name="first_part">first part</string>
+    <string name="second_part">second part</string>
+    <string name="text_for_message">Введите текст для мессенджера:</string>
+    <string name="send">Отправить</string>
+    <string name="text_for_second_act">Введите имя любимого препода:</string>
+    <string name="accept">Подтвердить</string>
+    <string name="ok">OK</string>
+    <string name="cancel">CANCEL</string>
+    <string name="title_activity_spsecond">SPSecondActivity</string>
+    <string name="best_teacher"> - лучший препод в мире</string>
 </resources>
