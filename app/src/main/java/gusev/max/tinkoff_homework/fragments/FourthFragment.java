@@ -10,7 +10,7 @@ import android.widget.TextView;
 
 import gusev.max.tinkoff_homework.R;
 
-import static gusev.max.tinkoff_homework.Utils.isEditTextEmpty;
+import static gusev.max.tinkoff_homework.utils.Utils.isEditTextEmpty;
 
 /**
  * Created by v on 16/10/2017.

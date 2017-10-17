@@ -10,9 +10,9 @@ import android.widget.EditText;
 
 import gusev.max.tinkoff_homework.R;
 
-import static gusev.max.tinkoff_homework.Utils.isEditTextEmpty;
-import static gusev.max.tinkoff_homework.Utils.isNumeric;
-import static gusev.max.tinkoff_homework.Utils.makeToast;
+import static gusev.max.tinkoff_homework.utils.Utils.isEditTextEmpty;
+import static gusev.max.tinkoff_homework.utils.Utils.isNumeric;
+import static gusev.max.tinkoff_homework.utils.Utils.makeToast;
 
 /**
  * Created by v on 16/10/2017.

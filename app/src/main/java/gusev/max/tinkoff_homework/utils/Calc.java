@@ -42,7 +42,7 @@ public class Calc implements Serializable {
         this.symbol = symbol;
     }
 
-    String getExpression(){
+    public String getExpression(){
         Double value;
 
         switch (symbol){
