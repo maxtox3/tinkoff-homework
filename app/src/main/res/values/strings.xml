@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">tinkoff-homework</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="label_1_fragment">Введите первое число:</string>
+    <string name="label_2_fragment">Введите второе число:</string>
+    <string name="plus">+</string>
+    <string name="multiply">*</string>
+    <string name="divide">/</string>
+    <string name="minus">-</string>
+    <string name="label_4_fragment">Выражение:</string>
 </resources>
