@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">tinkoff-homework</string>
+    <string name="steps">Steps</string>
+    <string name="y">y:</string>
+    <string name="x">x:</string>
+    <string name="add_lines">Add lines</string>
+    <string name="add_point">Add point</string>
+    <string name="color">Color</string>
+    <string name="empty">Вы не ввели значение!</string>
 </resources>
