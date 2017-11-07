@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">tinkoff-homework</string>
+    <string name="first_task">First task</string>
+    <string name="second_task">Second task</string>
+    <string name="third_task">Third task</string>
+    <string name="fourth_task">Fourth Task</string>
+    <string name="result">Result :  </string>
 </resources>
