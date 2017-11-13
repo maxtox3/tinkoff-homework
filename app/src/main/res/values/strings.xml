@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">tinkoff-homework</string>
+    <string name="add">добавить</string>
+    <string name="cancel">отмена</string>
 </resources>
