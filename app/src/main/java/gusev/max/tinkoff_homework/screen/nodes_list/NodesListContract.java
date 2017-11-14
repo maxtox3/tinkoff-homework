@@ -2,6 +2,7 @@ package gusev.max.tinkoff_homework.screen.nodes_list;
 
 import java.util.LinkedHashMap;
 
+import gusev.max.tinkoff_homework.data.model.Node;
 import gusev.max.tinkoff_homework.screen.base.BasePresenter;
 
 /**
@@ -12,7 +13,7 @@ class NodesListContract {
 
     interface View {
 
-        void showNodes(LinkedHashMap<Integer, Byte> nodes);
+        void showNodes(LinkedHashMap<Node, Byte> nodes);
 
         void clearNodes();
 
@@ -20,9 +21,7 @@ class NodesListContract {
 
         void showErrorMessage(String error);
 
-        void showNodeDetails(Integer nodeValue);
-
-        void stopLoadingIndicator();
+        void showNodeDetails(long nodeId);
 
     }
 
@@ -30,11 +29,13 @@ class NodesListContract {
 
         void loadNodes();
 
-        void getNode(long questionId);
+        void getNode(long nodeId);
 
         void addNode(int value);
 
-        void search(String questionTitle);
+        void onItemClicked(long nodeId);
+
+        void search(String nodeValue);
 
     }
 

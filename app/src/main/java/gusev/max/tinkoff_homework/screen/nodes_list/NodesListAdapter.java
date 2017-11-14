@@ -1,5 +1,6 @@
 package gusev.max.tinkoff_homework.screen.nodes_list;
 
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,6 +15,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import gusev.max.tinkoff_homework.R;
+import gusev.max.tinkoff_homework.data.model.Node;
 import gusev.max.tinkoff_homework.screen.base.BaseRecyclerViewAdapter;
 import io.reactivex.annotations.NonNull;
 
@@ -26,19 +28,20 @@ public class NodesListAdapter extends BaseRecyclerViewAdapter<NodesListAdapter.N
     class NodesListViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.node_value_txt_view)
         TextView valueTxtView;
-        public NodesListViewHolder(View itemView) {
+
+        NodesListViewHolder(View itemView) {
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
     }
 
-    private LinkedHashMap<Integer, Byte> nodes;
-    private List<Integer> nodesValues;
+    private LinkedHashMap<Node, Byte> nodes;
+    private List<Node> nodesList;
     private List<Byte> nodesColors;
 
-    public NodesListAdapter(@NonNull LinkedHashMap<Integer, Byte> map) {
+    NodesListAdapter(@NonNull LinkedHashMap<Node, Byte> map) {
         this.nodes = map;
-        this.nodesValues = new ArrayList<>();
+        this.nodesList = new ArrayList<>();
         this.nodesColors = new ArrayList<>();
     }
 
@@ -54,55 +57,55 @@ public class NodesListAdapter extends BaseRecyclerViewAdapter<NodesListAdapter.N
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
         super.onBindViewHolder(viewHolder, i);
         NodesListViewHolder vh = (NodesListViewHolder) viewHolder; //safe cast
-        String value = nodesValues.get(i).toString();//for debug
+        String value = String.valueOf(nodesList.get(i).getValue());//for debug
         vh.valueTxtView.setText(value);
-        vh.itemView.findViewById(R.id.card_view).setBackgroundColor(getColor(nodesColors.get(i)));
+        vh.itemView.findViewById(R.id.node_container).setBackgroundColor(getColor(nodesColors.get(i)));
     }
 
     @Override
     public int getItemCount() {
-        return nodesValues.size();
+        return nodesList.size();
     }
 
-    private int getColor(byte color){
+    private int getColor(byte color) {
 
-        switch (color){
+        switch (color) {
 
             case 0:
-                return R.color.white;
+                return Color.parseColor("#FFFFFF");
 
             case 1:
-                return R.color.yellow;
+                return Color.parseColor("#FFEB3B");
 
             case 2:
-                return R.color.blue;
+                return Color.parseColor("#2196F3");
 
             case 3:
-                return R.color.red;
+                return Color.parseColor("#F44336");
 
             default:
                 break;
         }
-        return 0;
+        return Color.parseColor("#FFFFFF");
     }
 
-    public void   replaceData(LinkedHashMap<Integer, Byte> map) {
+    void replaceData(LinkedHashMap<Node, Byte> map) {
         this.nodes.clear();
         this.nodes = map;
-        this.nodesValues.addAll(map.keySet());
+        this.nodesList.addAll(map.keySet());
         this.nodesColors.addAll(map.values());
         notifyDataSetChanged();
     }
 
-    public Integer getItem(int position) {
-        if (position < 0 || position >= nodesValues.size()) {
+    Node getItem(int position) {
+        if (position < 0 || position >= nodesList.size()) {
             throw new InvalidParameterException("Invalid item index");
         }
-        return nodesValues.get(position);
+        return nodesList.get(position);
     }
 
-    public void clearData() {
-        nodesValues.clear();
+    void clearData() {
+        nodesList.clear();
         nodesColors.clear();
         nodes.clear();
         notifyDataSetChanged();

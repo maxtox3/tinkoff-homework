@@ -9,15 +9,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
+import gusev.max.tinkoff_homework.NodeApp;
 import gusev.max.tinkoff_homework.data.model.Node;
 import io.reactivex.Completable;
-import io.reactivex.Flowable;
+import io.reactivex.Single;
 
 /**
  * Created by v on 13/11/2017.
@@ -29,14 +27,14 @@ public class Storage extends SQLiteOpenHelper {
     private static Storage INSTANCE;
     private static final String TAG = Storage.class.getSimpleName();
 
-    public Storage(Context context) {
-        super(context, "nodes_db", null, 1);
+    private Storage(Context context) {
+        super(context, "nodes_db", null, 2);
     }
 
-    public static synchronized Storage getInstance(Context context) {
+    public static synchronized Storage getInstance() {
 
         if (INSTANCE == null) {
-            INSTANCE = new Storage(context);
+            INSTANCE = new Storage(NodeApp.getContext());
         }
         return INSTANCE;
     }
@@ -76,10 +74,13 @@ public class Storage extends SQLiteOpenHelper {
         });
     }
 
-    public Flowable<LinkedHashMap<Integer, Byte>> getFilteredNodes() {
-        LinkedHashMap<Integer, Byte> filteredNodes = new LinkedHashMap<>();
+    public Single<LinkedHashMap<Node, Byte>> getFilteredNodes() {
+        LinkedHashMap<Node, Byte> filteredNodes = new LinkedHashMap<>();
         //get all nodes
         List<Node> nodeList = getAllNodes();
+
+        List<Node> filteredNodesList = new ArrayList<>();
+        List<Byte> filteredColorsArray = new ArrayList<>();
 
         //then for each node check if hasParent/hasChild -> set number dor color
         for (Node node : nodeList) {
@@ -103,23 +104,51 @@ public class Storage extends SQLiteOpenHelper {
                 color = 3;//red
             }
 
-            filteredNodes.put(value, color);
+            filteredNodesList.add(node);
+            filteredColorsArray.add(color);
+
+
         }
-        //filter by value 3,3,2,1...
-        filteredNodes = filteredNodes.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
-        return Flowable.just(filteredNodes);
+
+        for (int i = 0; i < filteredNodesList.size(); i++) {
+            filteredNodes.put(filteredNodesList.get(i), filteredColorsArray.get(i));
+        }
+        return Single.just(filteredNodes);
 
     }
 
-    private boolean isParent(int nodeValue) {
+    public Single<LinkedHashMap<Node, Boolean>> getNodesWithChildRelations(long parentNodeId) {
+        LinkedHashMap<Node, Boolean> nodesWithRelations = new LinkedHashMap<>();
+        List<Node> nodeList = getAllPossibleRelations(parentNodeId);
+
+        for (Node node : nodeList){
+            if(checkRelation(parentNodeId, node.getId())){
+                nodesWithRelations.put(node, true);
+            }
+            nodesWithRelations.put(node, false);
+        }
+        return Single.just(nodesWithRelations);
+    }
+
+    public Single<LinkedHashMap<Node, Boolean>> getNodesWithParentRelations(long childNodeId) {
+        LinkedHashMap<Node, Boolean> nodesWithRelations = new LinkedHashMap<>();
+        List<Node> nodeList = getAllPossibleRelations(childNodeId);
+
+        for (Node node : nodeList){
+            if(checkRelation(node.getId(), childNodeId)){
+                nodesWithRelations.put(node, true);
+            }
+            nodesWithRelations.put(node, false);
+        }
+        return Single.just(nodesWithRelations);
+    }
+
+    private boolean checkRelation(long childNodeId, long parentNodeId){
         boolean check = false;
         SQLiteDatabase db = this.getWritableDatabase();
 
         try {
-            Cursor cursor = db.rawQuery(SELECT_QUERY_CHECK_CHILDREN, null);
+            Cursor cursor = db.rawQuery(buildQueryCheckRelation(childNodeId,parentNodeId), null);
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
                     check = true;
@@ -132,12 +161,12 @@ public class Storage extends SQLiteOpenHelper {
         return check;
     }
 
-    private boolean isChild(int nodeValue) {
+    private boolean isParent(long nodeId) {
         boolean check = false;
         SQLiteDatabase db = this.getWritableDatabase();
 
         try {
-            Cursor cursor = db.rawQuery(SELECT_QUERY_CHECK_PARENTS, null);
+            Cursor cursor = db.rawQuery(SELECT_QUERY_CHECK_CHILDREN + nodeId, null);
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
                     check = true;
@@ -148,6 +177,51 @@ public class Storage extends SQLiteOpenHelper {
             Log.d(TAG, e.getMessage());
         }
         return check;
+    }
+
+    private boolean isChild(long nodeId) {
+        boolean check = false;
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        try {
+            Cursor cursor = db.rawQuery(SELECT_QUERY_CHECK_PARENTS + nodeId, null);
+            if (cursor != null) {
+                if (cursor.getCount() > 0) {
+                    check = true;
+                }
+                cursor.close();
+            }
+        } catch (SQLException e) {
+            Log.d(TAG, e.getMessage());
+        }
+        return check;
+    }
+
+    private List<Node> getAllPossibleRelations(long nodeId) {
+        List<Node> nodeList = new ArrayList<>();
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        try {
+            Cursor cursor = db.rawQuery(SELECT_QUERY_POSSIBLE_RELATIONS + nodeId, null);
+            if (cursor != null) {
+                if (cursor.getCount() > 0) {
+                    if (cursor.moveToFirst()) {
+                        do {
+                            Node node = new Node();
+                            node.setId(cursor.getInt(cursor.getColumnIndex(ID)));
+                            node.setValue(cursor.getInt(cursor.getColumnIndex(VALUE)));
+                            node.setNodes(new ArrayList<>());
+
+                            nodeList.add(node);
+                        } while (cursor.moveToNext());
+                    }
+                }
+                cursor.close();
+            }
+        } catch (SQLException e) {
+            Log.d(TAG, e.getMessage());
+        }
+        return nodeList;
     }
 
     private List<Node> getAllNodes() {
@@ -193,8 +267,9 @@ public class Storage extends SQLiteOpenHelper {
     private static final String VALUE = "value";
 
     private static final String CREATE_NODES_TABLE = "create table " + NODES_TABLE_NAME + "(" +
-            ID + " integer primary key autoincrement not null," +
-            VALUE + " integer not null)";
+            ID + " integer not null," +
+            VALUE + " integer not null, " +
+            "PRIMARY KEY (" + ID + "))";
 
     //Queries for NodesTable
     private static final String SELECT_ALL_NODES_QUERY = "SELECT * FROM " + NODES_TABLE_NAME;
@@ -210,18 +285,30 @@ public class Storage extends SQLiteOpenHelper {
     private static final String CHILD_ID = "child_id";
 
     private static final String CREATE_CHILD_PARENT_TABLE = "create table " + CHILD_PARENT_TABLE_NAME + "(" +
-            PARENT_ID + " integer primary key not null," +
-            CHILD_ID + " integer primary key not null)";
+            PARENT_ID + " int not null," +
+            CHILD_ID + " int not null, " +
+            "UNIQUE (" + PARENT_ID + "," + CHILD_ID + "))";
 
     //query for check parents existing
     private static final String SELECT_QUERY_CHECK_PARENTS = "SELECT * FROM " + NODES_TABLE_NAME +
-            "AS n INNER JOIN " + CHILD_PARENT_TABLE_NAME +
-            " as p ON n." + ID + " = p." + PARENT_ID + " WHERE p." + CHILD_ID + "= ?";
+            " AS n INNER JOIN " + CHILD_PARENT_TABLE_NAME +
+            " as p ON n." + ID + " = p." + PARENT_ID + " WHERE p." + CHILD_ID + "= ";
 
     //query for check children existing
     private static final String SELECT_QUERY_CHECK_CHILDREN = "SELECT * FROM " + NODES_TABLE_NAME +
-            "AS n INNER JOIN " + CHILD_PARENT_TABLE_NAME +
-            " as p ON n." + ID + " = p." + CHILD_ID + " WHERE p." + PARENT_ID + "= ?";
+            " AS n INNER JOIN " + CHILD_PARENT_TABLE_NAME +
+            " as p ON n." + ID + " = p." + CHILD_ID + " WHERE p." + PARENT_ID + "= ";
+
+    //query that returning all possible variants of relations
+    private static final String SELECT_QUERY_POSSIBLE_RELATIONS = "SELECT n." + ID + "n." + VALUE +
+            " FROM " + NODES_TABLE_NAME + " AS n INNER JOIN " +
+            NODES_TABLE_NAME + " AS m ON n." + ID + " = m." + ID + " WHERE m." + ID + " != ";
+
+    //query that checks relation
+    private String buildQueryCheckRelation(long parentId, long childId){
+        return "SELECT * FROM " + CHILD_PARENT_TABLE_NAME +
+                " WHERE " + PARENT_ID + " = " + parentId + " AND " + CHILD_ID + " = " + childId;
+    }
 
     //Drop ChildParent table
     private static final String DROP_CHILD_PARENT_TABLE = "DROP TABLE IF EXISTS " + CHILD_PARENT_TABLE_NAME;
@@ -234,6 +321,17 @@ public class Storage extends SQLiteOpenHelper {
 
     //Если не пусто, то является родителем
     SELECT * FROM Node AS n INNER JOIN parent_child as p ON n.id = p.child_id WHERE p.parent_id=2
+
+    //Выдет список id:value, включающий в себя все возможные варианты связей
+    SELECT n.id, n.value FROM Node AS n INNER JOIN Node as m ON n.id = m.id WHERE m.id!=1
+
+    //Тащим всех детей по опред айди родителя
+    SELECT parent_child.parent_id, parent_child.child_id FROM parent_child WHERE parent_child.parent_id=1
+
+    //проверяем для каждого есть ли такое в таблице parent_child
+    SELECT * FROM parent_child WHERE parent_id = 2 AND child_id = 5
+
      */
+
 }
 

@@ -2,4 +2,6 @@
     <string name="app_name">tinkoff-homework</string>
     <string name="add">добавить</string>
     <string name="cancel">отмена</string>
+    <string name="children">Дети</string>
+    <string name="parents">Родители</string>
 </resources>

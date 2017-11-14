@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/children_button"
+        android:enabled="true"
+        android:title="@string/children"
+        app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/parent_button"
+        android:enabled="true"
+        android:title="@string/parents"
+        app:showAsAction="ifRoom" />
+
+
+
+</menu>

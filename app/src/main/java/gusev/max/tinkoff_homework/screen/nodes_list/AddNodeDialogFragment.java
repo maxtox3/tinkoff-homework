@@ -18,9 +18,9 @@ import gusev.max.tinkoff_homework.R;
  * Created by v on 13/11/2017.
  */
 
-public class MyDialogFragment extends DialogFragment implements View.OnClickListener {
+public class AddNodeDialogFragment extends DialogFragment implements View.OnClickListener {
 
-    ActivityCallbacks callbacks;
+    NodeListActivityCallback callbacks;
     @BindView(R.id.btnYes)
     Button add;
     @BindView(R.id.btnNo)
@@ -35,7 +35,7 @@ public class MyDialogFragment extends DialogFragment implements View.OnClickList
         // This makes sure that the container activity has implemented
         // the callback interface. If not, it throws an exception
         try {
-            callbacks = (ActivityCallbacks) activity;
+            callbacks = (NodeListActivityCallback) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
                     + " must implement activityCallback");

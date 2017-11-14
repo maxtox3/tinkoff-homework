@@ -11,9 +11,11 @@ import java.util.LinkedHashMap;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import gusev.max.tinkoff_homework.R;
+import gusev.max.tinkoff_homework.data.model.Node;
 import gusev.max.tinkoff_homework.screen.base.BaseActivity;
+import gusev.max.tinkoff_homework.screen.nodes_relations.NodeRelationsActivity;
 
-public class NodesListActivity extends BaseActivity implements NodesListContract.View, ActivityCallbacks {
+public class NodesListActivity extends BaseActivity implements NodesListContract.View, NodeListActivityCallback {
 
     @BindView(R.id.nodes_list_recycler)
     RecyclerView recyclerView;
@@ -22,7 +24,7 @@ public class NodesListActivity extends BaseActivity implements NodesListContract
 
     private NodesListAdapter adapter;
     private NodesListPresenter presenter;
-    private MyDialogFragment dialog;
+    private AddNodeDialogFragment dialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +36,7 @@ public class NodesListActivity extends BaseActivity implements NodesListContract
 
     private void setupWidgets() {
         //
-        dialog = new MyDialogFragment();
+        dialog = new AddNodeDialogFragment();
         //fab
         fab.setOnClickListener(view -> dialog.show(getFragmentManager(), "dlg"));
 
@@ -44,19 +46,13 @@ public class NodesListActivity extends BaseActivity implements NodesListContract
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
-        presenter = new NodesListPresenter(this, this);
-        //adapter.setOnItemClickListener(
-
-                //(view, position) -> presenter.getQuestion(adapter.getItem(position).getId()));
-        //get all nodes
-    }
-
-    private void getNodes() {
-
+        presenter = new NodesListPresenter(this);
+        adapter.setOnItemClickListener(
+                (view, position) -> presenter.onItemClicked(adapter.getItem(position).getId()));
     }
 
     @Override
-    public void showNodes(LinkedHashMap<Integer, Byte> nodes) {
+    public void showNodes(LinkedHashMap<Node, Byte> nodes) {
         adapter.replaceData(nodes);
     }
 
@@ -76,13 +72,8 @@ public class NodesListActivity extends BaseActivity implements NodesListContract
     }
 
     @Override
-    public void showNodeDetails(Integer nodeValue) {
-
-    }
-
-    @Override
-    public void stopLoadingIndicator() {
-
+    public void showNodeDetails(long nodeId) {
+        NodeRelationsActivity.start(this, nodeId);
     }
 
     //ActivityCallbacks

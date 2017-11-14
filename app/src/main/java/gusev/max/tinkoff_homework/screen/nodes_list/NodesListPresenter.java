@@ -4,15 +4,14 @@ import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
 import android.arch.lifecycle.LifecycleOwner;
 import android.arch.lifecycle.OnLifecycleEvent;
-import android.content.Context;
 
 import java.util.LinkedHashMap;
 
-import gusev.max.tinkoff_homework.data.db.Storage;
-import io.reactivex.android.schedulers.AndroidSchedulers;
+import gusev.max.tinkoff_homework.data.Model;
+import gusev.max.tinkoff_homework.data.ModelImpl;
+import gusev.max.tinkoff_homework.data.model.Node;
 import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Created by v on 13/11/2017.
@@ -21,12 +20,11 @@ import io.reactivex.schedulers.Schedulers;
 public class NodesListPresenter implements NodesListContract.Presenter, LifecycleObserver {
 
     private NodesListContract.View view;
-    private Storage storage;
     private CompositeDisposable disposeBag;
+    private Model model = new ModelImpl();
 
-    public NodesListPresenter(NodesListContract.View view, Context context) {
+    NodesListPresenter(NodesListContract.View view) {
         this.view = view;
-        this.storage = Storage.getInstance(context);
 
         if (view instanceof LifecycleOwner) {
             ((LifecycleOwner) view).getLifecycle().addObserver(this);
@@ -51,24 +49,19 @@ public class NodesListPresenter implements NodesListContract.Presenter, Lifecycl
     public void loadNodes() {
         view.clearNodes();
 
-        Disposable disposable = storage.getFilteredNodes()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::handleReturnedData, this::handleError,
-                        () -> view.stopLoadingIndicator());
+        Disposable disposable = model.getFilteredNodes()
+                .subscribe(this::handleLoadedNodes, this::handleError);
         disposeBag.add(disposable);
     }
 
     @Override
-    public void getNode(long questionId) {
+    public void getNode(long nodeId) {
 
     }
 
     @Override
     public void addNode(int value) {
-        Disposable disposable = storage.addNode(value)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
+        Disposable disposable = model.addNode(value)
                 .doOnError(this::handleError)
                 .doOnComplete(this::loadNodes)
                 .subscribe();
@@ -76,15 +69,19 @@ public class NodesListPresenter implements NodesListContract.Presenter, Lifecycl
     }
 
     @Override
-    public void search(String questionTitle) {
+    public void onItemClicked(long nodeId) {
+        view.showNodeDetails(nodeId);
+    }
+
+    @Override
+    public void search(String nodeValue) {
 
     }
 
     /**
      * Updates view after loading data is completed successfully.
      */
-    private void handleReturnedData(LinkedHashMap<Integer, Byte> list) {
-        view.stopLoadingIndicator();
+    private void handleLoadedNodes(LinkedHashMap<Node, Byte> list) {
         if (list != null && !list.isEmpty()) {
             view.showNodes(list);
         } else {
@@ -96,7 +93,6 @@ public class NodesListPresenter implements NodesListContract.Presenter, Lifecycl
      * Updates view if there is an error after loading data from repository.
      */
     private void handleError(Throwable error) {
-        view.stopLoadingIndicator();
         view.showErrorMessage(error.getLocalizedMessage());
     }
 }
