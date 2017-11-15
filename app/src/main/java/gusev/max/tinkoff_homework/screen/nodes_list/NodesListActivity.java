@@ -13,7 +13,7 @@ import butterknife.ButterKnife;
 import gusev.max.tinkoff_homework.R;
 import gusev.max.tinkoff_homework.data.model.Node;
 import gusev.max.tinkoff_homework.screen.base.BaseActivity;
-import gusev.max.tinkoff_homework.screen.nodes_relations.NodeRelationsActivity;
+import gusev.max.tinkoff_homework.screen.node_relations.RelationsActivity;
 
 public class NodesListActivity extends BaseActivity implements NodesListContract.View, NodeListActivityCallback {
 
@@ -41,7 +41,7 @@ public class NodesListActivity extends BaseActivity implements NodesListContract
         fab.setOnClickListener(view -> dialog.show(getFragmentManager(), "dlg"));
 
         // Setup recycler view
-        adapter = new NodesListAdapter(new LinkedHashMap<>());
+        adapter = new NodesListAdapter();
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
@@ -73,7 +73,7 @@ public class NodesListActivity extends BaseActivity implements NodesListContract
 
     @Override
     public void showNodeDetails(long nodeId) {
-        NodeRelationsActivity.start(this, nodeId);
+        RelationsActivity.start(this, nodeId);
     }
 
     //ActivityCallbacks

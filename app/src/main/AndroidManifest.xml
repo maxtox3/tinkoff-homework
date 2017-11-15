@@ -16,7 +16,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".screen.nodes_relations.NodeRelationsActivity"/>
+        <activity android:name=".screen.node_relations.RelationsActivity"/>
     </application>
 
 </manifest>

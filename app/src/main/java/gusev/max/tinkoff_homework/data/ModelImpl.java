@@ -15,6 +15,16 @@ import io.reactivex.schedulers.Schedulers;
 
 public class ModelImpl implements Model{
 
+    private static ModelImpl INSTANCE;
+
+    public static synchronized ModelImpl getInstance() {
+
+        if (INSTANCE == null) {
+            INSTANCE = new ModelImpl();
+        }
+        return INSTANCE;
+    }
+
     private Storage storage = Storage.getInstance();
 
     @Override

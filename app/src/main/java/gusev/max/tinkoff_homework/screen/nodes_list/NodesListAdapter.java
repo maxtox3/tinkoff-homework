@@ -17,7 +17,6 @@ import butterknife.ButterKnife;
 import gusev.max.tinkoff_homework.R;
 import gusev.max.tinkoff_homework.data.model.Node;
 import gusev.max.tinkoff_homework.screen.base.BaseRecyclerViewAdapter;
-import io.reactivex.annotations.NonNull;
 
 /**
  * Created by v on 13/11/2017.
@@ -35,12 +34,10 @@ public class NodesListAdapter extends BaseRecyclerViewAdapter<NodesListAdapter.N
         }
     }
 
-    private LinkedHashMap<Node, Byte> nodes;
     private List<Node> nodesList;
     private List<Byte> nodesColors;
 
-    NodesListAdapter(@NonNull LinkedHashMap<Node, Byte> map) {
-        this.nodes = map;
+    NodesListAdapter() {
         this.nodesList = new ArrayList<>();
         this.nodesColors = new ArrayList<>();
     }
@@ -90,8 +87,6 @@ public class NodesListAdapter extends BaseRecyclerViewAdapter<NodesListAdapter.N
     }
 
     void replaceData(LinkedHashMap<Node, Byte> map) {
-        this.nodes.clear();
-        this.nodes = map;
         this.nodesList.addAll(map.keySet());
         this.nodesColors.addAll(map.values());
         notifyDataSetChanged();
@@ -107,7 +102,6 @@ public class NodesListAdapter extends BaseRecyclerViewAdapter<NodesListAdapter.N
     void clearData() {
         nodesList.clear();
         nodesColors.clear();
-        nodes.clear();
         notifyDataSetChanged();
     }
 }

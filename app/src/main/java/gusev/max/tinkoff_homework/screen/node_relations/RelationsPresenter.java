@@ -1,4 +1,4 @@
-package gusev.max.tinkoff_homework.screen.nodes_list;
+package gusev.max.tinkoff_homework.screen.node_relations;
 
 import android.arch.lifecycle.Lifecycle;
 import android.arch.lifecycle.LifecycleObserver;
@@ -14,17 +14,19 @@ import io.reactivex.disposables.CompositeDisposable;
 import io.reactivex.disposables.Disposable;
 
 /**
- * Created by v on 13/11/2017.
+ * Created by v on 15/11/2017.
  */
 
-public class NodesListPresenter implements NodesListContract.Presenter, LifecycleObserver {
+public class RelationsPresenter implements RelationsContract.Presenter, LifecycleObserver {
 
-    private NodesListContract.View view;
+    private RelationsContract.View view;
     private CompositeDisposable disposeBag;
     private Model model = ModelImpl.getInstance();
+    private long node;
 
-    NodesListPresenter(NodesListContract.View view) {
+    RelationsPresenter(RelationsContract.View view, long nodeId) {
         this.view = view;
+        this.node = nodeId;
 
         if (view instanceof LifecycleOwner) {
             ((LifecycleOwner) view).getLifecycle().addObserver(this);
@@ -36,7 +38,7 @@ public class NodesListPresenter implements NodesListContract.Presenter, Lifecycl
     @Override
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     public void onAttach() {
-        loadNodes();
+        loadChildRelations(node);
     }
 
     @Override
@@ -46,44 +48,30 @@ public class NodesListPresenter implements NodesListContract.Presenter, Lifecycl
     }
 
     @Override
-    public void loadNodes() {
-        view.clearNodes();
+    public void loadChildRelations(long nodeId) {
+        view.clearRelations();
 
-        Disposable disposable = model.getFilteredNodes()
-                .subscribe(this::handleLoadedNodes, this::handleError);
+        Disposable disposable = model.getNodesWithChildRelations(nodeId)
+                .subscribe(this::handleLoadedRelations, this::handleError);
         disposeBag.add(disposable);
     }
 
     @Override
-    public void getNode(long nodeId) {
+    public void addRelation(long nodeIdFirst, long nodeIdSecond) {
 
-    }
-
-    @Override
-    public void addNode(int value) {
-        Disposable disposable = model.addNode(value)
-                .doOnError(this::handleError)
-                .doOnComplete(this::loadNodes)
-                .subscribe();
-        disposeBag.add(disposable);
     }
 
     @Override
     public void onItemClicked(long nodeId) {
-        view.showNodeDetails(nodeId);
-    }
-
-    @Override
-    public void search(String nodeValue) {
 
     }
 
     /**
      * Updates view after loading data is completed successfully.
      */
-    private void handleLoadedNodes(LinkedHashMap<Node, Byte> list) {
+    private void handleLoadedRelations(LinkedHashMap<Node, Boolean> list) {
         if (list != null && !list.isEmpty()) {
-            view.showNodes(list);
+            view.showRelations(list);
         } else {
             view.showNoDataMessage();
         }

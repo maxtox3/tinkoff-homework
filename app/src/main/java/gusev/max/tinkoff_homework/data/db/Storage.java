@@ -148,6 +148,7 @@ public class Storage extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         try {
+            //todo переписать db.rawQuery() и из 3 методов сделать 1
             Cursor cursor = db.rawQuery(buildQueryCheckRelation(childNodeId,parentNodeId), null);
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
@@ -158,6 +159,7 @@ public class Storage extends SQLiteOpenHelper {
         } catch (SQLException e) {
             Log.d(TAG, e.getMessage());
         }
+        db.close();
         return check;
     }
 
@@ -176,6 +178,7 @@ public class Storage extends SQLiteOpenHelper {
         } catch (SQLException e) {
             Log.d(TAG, e.getMessage());
         }
+        db.close();
         return check;
     }
 
@@ -194,6 +197,7 @@ public class Storage extends SQLiteOpenHelper {
         } catch (SQLException e) {
             Log.d(TAG, e.getMessage());
         }
+        db.close();
         return check;
     }
 
@@ -202,6 +206,7 @@ public class Storage extends SQLiteOpenHelper {
         SQLiteDatabase db = this.getWritableDatabase();
 
         try {
+            //todo сделать из 2 методов - 1
             Cursor cursor = db.rawQuery(SELECT_QUERY_POSSIBLE_RELATIONS + nodeId, null);
             if (cursor != null) {
                 if (cursor.getCount() > 0) {
@@ -221,6 +226,7 @@ public class Storage extends SQLiteOpenHelper {
         } catch (SQLException e) {
             Log.d(TAG, e.getMessage());
         }
+        db.close();
         return nodeList;
     }
 
@@ -248,6 +254,7 @@ public class Storage extends SQLiteOpenHelper {
         } catch (SQLException e) {
             Log.d(TAG, e.getMessage());
         }
+        db.close();
         return nodeList;
     }
 
@@ -300,7 +307,7 @@ public class Storage extends SQLiteOpenHelper {
             " as p ON n." + ID + " = p." + CHILD_ID + " WHERE p." + PARENT_ID + "= ";
 
     //query that returning all possible variants of relations
-    private static final String SELECT_QUERY_POSSIBLE_RELATIONS = "SELECT n." + ID + "n." + VALUE +
+    private static final String SELECT_QUERY_POSSIBLE_RELATIONS = "SELECT n." + ID + ", n." + VALUE +
             " FROM " + NODES_TABLE_NAME + " AS n INNER JOIN " +
             NODES_TABLE_NAME + " AS m ON n." + ID + " = m." + ID + " WHERE m." + ID + " != ";
 
