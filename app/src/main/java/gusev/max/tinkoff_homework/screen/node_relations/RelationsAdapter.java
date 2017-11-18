@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -35,12 +36,14 @@ public class RelationsAdapter extends BaseRecyclerViewAdapter<RelationsAdapter.N
 
     private List<Node> nodeList;
     private List<Boolean> checkList;
-    private long node;
+    private int typeOfRelation;
+    private Node node;
 
-    RelationsAdapter(long nodeId){
-        this.node = nodeId;
+    RelationsAdapter(Node node) {
+        this.node = node;
         this.nodeList = new ArrayList<>();
         this.checkList = new ArrayList<>();
+        this.typeOfRelation = 0;
     }
 
     @Override
@@ -55,15 +58,8 @@ public class RelationsAdapter extends BaseRecyclerViewAdapter<RelationsAdapter.N
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
         super.onBindViewHolder(viewHolder, i);
         NodeRelationsViewHolder vh = (NodeRelationsViewHolder) viewHolder;
-        vh.relationTextView.setText(
-                buildStringForTextView(
-                        String.valueOf(
-                                nodeList.get(i).getValue()
-                        )
-                )
-        );
+        vh.relationTextView.setText(buildStringForTextView(nodeList.get(i)));
         vh.itemView.findViewById(R.id.node_container).setBackgroundColor(getColor(checkList.get(i)));
-        //todo здесь закидываем в вьюшку текст
     }
 
     @Override
@@ -71,14 +67,53 @@ public class RelationsAdapter extends BaseRecyclerViewAdapter<RelationsAdapter.N
         return nodeList.size();
     }
 
-    void replaceData(LinkedHashMap<Node, Boolean> map){
+    // Package private methods
+
+    /**
+     * Replace data to new
+     */
+    void replaceData(LinkedHashMap<Node, Boolean> map) {
+
+        this.nodeList.clear();
+        this.checkList.clear();
+
         this.nodeList.addAll(map.keySet());
         this.checkList.addAll(map.values());
         notifyDataSetChanged();
     }
 
-    private String buildStringForTextView(String element){
-        return node + "  ----  " + element;
+    /**
+     * Change type of relation
+     * 0 if current tab in view is children
+     * 1 if current tab in view is parent
+     */
+    void changeTypeOfRelation(int type) {
+        this.typeOfRelation = type;
+    }
+
+    int getTypeOfRelation(){
+        return typeOfRelation;
+    }
+
+    /**
+     * Return item by position
+     */
+    Node getItem(int position) {
+        if (position < 0 || position >= nodeList.size()) {
+            throw new InvalidParameterException("Invalid item index");
+        }
+        return nodeList.get(position);
+    }
+
+    /**
+     * returns existing of relation
+     * true -> exist | false -> no
+     */
+    Boolean getType(int position) {
+        if (position < 0 || position >= checkList.size()) {
+            throw new InvalidParameterException("Invalid item index");
+        }
+        return checkList.get(position);
     }
 
     void clearData() {
@@ -87,9 +122,21 @@ public class RelationsAdapter extends BaseRecyclerViewAdapter<RelationsAdapter.N
         notifyDataSetChanged();
     }
 
-    private int getColor(boolean check){
-        if(check){
-            return Color.GREEN;
+    // Private methods
+
+    private String buildStringForTextView(Node element) {
+        if (typeOfRelation == 0) {
+            return "id: " + node.getId() + " | value: " + node.getValue() +
+                    "  ----  id: " + element.getId() + " | " + "value: " + element.getValue();
+        } else {
+            return "id: " + element.getId() + " | value: " + element.getValue() +
+                    "  ----  id: " + node.getId() + " | " + "value: " + node.getValue();
+        }
+    }
+
+    private int getColor(boolean check) {
+        if (check) {
+            return Color.parseColor("#8BC34A");
         }
         return Color.WHITE;
     }

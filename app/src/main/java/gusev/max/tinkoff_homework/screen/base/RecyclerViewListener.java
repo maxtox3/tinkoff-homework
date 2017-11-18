@@ -11,9 +11,4 @@ public interface RecyclerViewListener {
   interface OnItemClickListener {
     void OnItemClick(View view, int position);
   }
-
-  @FunctionalInterface
-  interface OnItemLongClickListener {
-    void OnItemLongClick(View view, int position);
-  }
 }

@@ -13,23 +13,35 @@ public class RelationsContract {
 
     interface View {
 
+        /**
+         * Show relations after completed loading
+         */
         void showRelations(LinkedHashMap<Node, Boolean> nodes);
 
+        /**
+         * Clear data in view
+         */
         void clearRelations();
 
-        void showNoDataMessage();
-
+        /**
+         * Show error if there was problem at loading moment
+         */
         void showErrorMessage(String error);
 
     }
 
     interface Presenter extends BasePresenter<RelationsContract.View> {
 
-        void loadChildRelations(long nodeId);
 
-        void addRelation(long nodeIdFirst, long nodeIdSecond);
+        /**
+         * Click on item(relation between two nodes) in recyclerView
+         */
+        void onItemClicked(long nodeId, boolean type, int typeOfRelation);
 
-        void onItemClicked(long nodeId);
+        /**
+         * Chenga typeOdRelation between 2 nodes
+         */
+        void onChangeTypeOfRelation(int relationType);
 
     }
 }

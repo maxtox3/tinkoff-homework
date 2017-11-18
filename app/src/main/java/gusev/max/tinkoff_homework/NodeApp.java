@@ -20,8 +20,7 @@ public class NodeApp extends Application {
         super.onCreate();
         context = getApplicationContext();
 
-        //todo remove
-        Storage storage = Storage.getInstance();
+        Storage.getInstance();
 
         Stetho.initializeWithDefaults(this);
     }

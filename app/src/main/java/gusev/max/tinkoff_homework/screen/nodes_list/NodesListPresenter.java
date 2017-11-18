@@ -55,11 +55,6 @@ public class NodesListPresenter implements NodesListContract.Presenter, Lifecycl
     }
 
     @Override
-    public void getNode(long nodeId) {
-
-    }
-
-    @Override
     public void addNode(int value) {
         Disposable disposable = model.addNode(value)
                 .doOnError(this::handleError)
@@ -69,13 +64,8 @@ public class NodesListPresenter implements NodesListContract.Presenter, Lifecycl
     }
 
     @Override
-    public void onItemClicked(long nodeId) {
-        view.showNodeDetails(nodeId);
-    }
-
-    @Override
-    public void search(String nodeValue) {
-
+    public void onItemClicked(Node node) {
+        view.showNodeRelations(node);
     }
 
     /**
@@ -84,8 +74,6 @@ public class NodesListPresenter implements NodesListContract.Presenter, Lifecycl
     private void handleLoadedNodes(LinkedHashMap<Node, Byte> list) {
         if (list != null && !list.isEmpty()) {
             view.showNodes(list);
-        } else {
-            view.showNoDataMessage();
         }
     }
 

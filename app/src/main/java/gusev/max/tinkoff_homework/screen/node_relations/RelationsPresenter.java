@@ -22,11 +22,13 @@ public class RelationsPresenter implements RelationsContract.Presenter, Lifecycl
     private RelationsContract.View view;
     private CompositeDisposable disposeBag;
     private Model model = ModelImpl.getInstance();
-    private long node;
+    private int typeOfRelation;
+    private Node node;
 
-    RelationsPresenter(RelationsContract.View view, long nodeId) {
+    RelationsPresenter(RelationsContract.View view, Node node) {
         this.view = view;
-        this.node = nodeId;
+        this.node = node;
+        this.typeOfRelation = 0;
 
         if (view instanceof LifecycleOwner) {
             ((LifecycleOwner) view).getLifecycle().addObserver(this);
@@ -38,7 +40,7 @@ public class RelationsPresenter implements RelationsContract.Presenter, Lifecycl
     @Override
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     public void onAttach() {
-        loadChildRelations(node);
+        loadRelations();
     }
 
     @Override
@@ -48,22 +50,71 @@ public class RelationsPresenter implements RelationsContract.Presenter, Lifecycl
     }
 
     @Override
-    public void loadChildRelations(long nodeId) {
+    public void onItemClicked(long nodeId, boolean type, int typeOfRelation) {
+        if (typeOfRelation == 0) {
+            if (type) {
+                removeRelation(node.getId(), nodeId);
+            } else {
+                addRelation(node.getId(), nodeId);
+            }
+        } else {
+            if (type) {
+                removeRelation(nodeId, node.getId());
+            } else {
+                addRelation(nodeId, node.getId());
+            }
+        }
+    }
+
+    @Override
+    public void onChangeTypeOfRelation(int relationType) {
+        this.typeOfRelation = relationType;
+        loadRelations();
+    }
+
+    //Private methods
+
+    /**
+     * Load relations for certain node depending on the typeOfRelation
+     */
+    private void loadRelations() {
         view.clearRelations();
 
-        Disposable disposable = model.getNodesWithChildRelations(nodeId)
-                .subscribe(this::handleLoadedRelations, this::handleError);
+        if (typeOfRelation == 0) {
+            Disposable disposable = model.getNodesWithChildRelations(node.getId())
+                    .subscribe(this::handleLoadedRelations, this::handleError);
+            disposeBag.add(disposable);
+        } else {
+            Disposable disposable = model.getNodesWithParentRelations(node.getId())
+                    .subscribe(this::handleLoadedRelations, this::handleError);
+            disposeBag.add(disposable);
+        }
+    }
+
+    /**
+     * add new relation between two nodes
+     */
+    private void addRelation(long nodeIdFirst, long nodeIdSecond) {
+        view.clearRelations();
+
+        Disposable disposable = model.addRelation(nodeIdFirst, nodeIdSecond)
+                .doOnError(this::handleError)
+                .doOnComplete(this::loadRelations)
+                .subscribe();
         disposeBag.add(disposable);
     }
 
-    @Override
-    public void addRelation(long nodeIdFirst, long nodeIdSecond) {
+    /**
+     * remove existing relation between two nodes
+     */
+    private void removeRelation(long nodeIdFirst, long nodeIdSecond) {
+        view.clearRelations();
 
-    }
-
-    @Override
-    public void onItemClicked(long nodeId) {
-
+        Disposable disposable = model.removeRelation(nodeIdFirst, nodeIdSecond)
+                .doOnError(this::handleError)
+                .doOnComplete(this::loadRelations)
+                .subscribe();
+        disposeBag.add(disposable);
     }
 
     /**
@@ -72,8 +123,6 @@ public class RelationsPresenter implements RelationsContract.Presenter, Lifecycl
     private void handleLoadedRelations(LinkedHashMap<Node, Boolean> list) {
         if (list != null && !list.isEmpty()) {
             view.showRelations(list);
-        } else {
-            view.showNoDataMessage();
         }
     }
 

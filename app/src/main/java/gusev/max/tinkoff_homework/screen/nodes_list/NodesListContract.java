@@ -13,29 +13,44 @@ class NodesListContract {
 
     interface View {
 
+        /**
+         * Show nodes after completed loading
+         */
         void showNodes(LinkedHashMap<Node, Byte> nodes);
 
+        /**
+         * Clear data in view
+         */
         void clearNodes();
 
-        void showNoDataMessage();
-
+        /**
+         * Show error if there was problem at loading moment
+         */
         void showErrorMessage(String error);
 
-        void showNodeDetails(long nodeId);
+        /**
+         * Start RelationsActivity for certain node
+         */
+        void showNodeRelations(Node node);
 
     }
 
     interface Presenter extends BasePresenter<NodesListContract.View> {
 
+        /**
+         * Load nodes list
+         */
         void loadNodes();
 
-        void getNode(long nodeId);
-
+        /**
+         * Add new node
+         */
         void addNode(int value);
 
-        void onItemClicked(long nodeId);
-
-        void search(String nodeValue);
+        /**
+         * Click on item(node) in recyclerView
+         */
+        void onItemClicked(Node node);
 
     }
 

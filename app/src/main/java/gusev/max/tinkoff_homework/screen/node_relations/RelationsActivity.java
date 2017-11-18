@@ -6,6 +6,9 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.DialogFragment;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,7 +25,7 @@ import gusev.max.tinkoff_homework.screen.base.BaseActivity;
  * Created by v on 14/11/2017.
  */
 
-public class RelationsActivity extends BaseActivity implements RelationsContract.View {
+public class RelationsActivity extends BaseActivity implements RelationsContract.View, RelationDialogFragment.RelationsActivityCallback {
 
     @BindView(R.id.nodes_relations_recycler)
     RecyclerView recyclerView;
@@ -33,11 +36,11 @@ public class RelationsActivity extends BaseActivity implements RelationsContract
     private RelationsAdapter adapter;
     private RelationsPresenter presenter;
 
-    private long nodeId;
+    private static Node node;
 
-    public static void start(@NonNull Activity activity, long noteId) {
+    public static void start(@NonNull Activity activity, Node node) {
         Intent intent = new Intent(activity, RelationsActivity.class);
-        intent.putExtra(NODE_ID_KEY, noteId);
+        intent.putExtra(NODE_ID_KEY, node);
         activity.startActivity(intent);
     }
 
@@ -47,14 +50,34 @@ public class RelationsActivity extends BaseActivity implements RelationsContract
         setContentView(R.layout.activity_node_relations);
         ButterKnife.bind(this);
         setupWidgets();
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
 
+    }
+
+    private void setupWidgets() {
+
+        node = (Node) getIntent().getSerializableExtra(NODE_ID_KEY);
+
+        // Setup recycler view
+        adapter = new RelationsAdapter(node);
+        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        //init presenter
+        presenter = new RelationsPresenter(this, node);
+
+        //set bottom nav
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
             switch (item.getItemId()) {
                 case R.id.children_button:
-                    //todo при нажатии кнопки открывать обновлять ресайклер под определенную вкладку
+                    presenter.onChangeTypeOfRelation(0);
+                    adapter.changeTypeOfRelation(0);
                     break;
 
                 case R.id.parent_button:
+                    presenter.onChangeTypeOfRelation(1);
+                    adapter.changeTypeOfRelation(1);
                     break;
 
                 default:
@@ -62,25 +85,31 @@ public class RelationsActivity extends BaseActivity implements RelationsContract
             }
             return true;
         });
+
+        //set adapter
+        adapter.setOnItemClickListener(
+                (view, position) -> showDialog(
+                        adapter.getItem(position).getId(),
+                        adapter.getType(position)
+                )
+        );
+
+
     }
 
-    private void setupWidgets() {
-        nodeId = getIntent().getLongExtra(NODE_ID_KEY, 0);
-        // Setup recycler view
-        adapter = new RelationsAdapter(nodeId);
-        RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adapter);
-        recyclerView.setItemAnimator(new DefaultItemAnimator());
-        presenter = new RelationsPresenter(this, nodeId);
-        //todo dialog
-        // adapter.setOnItemClickListener( (view, position) -> presenter.onItemClicked(adapter.getItem(position).getId()));
+    void showDialog(long node, boolean type) {
+        FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+        Fragment prev = getSupportFragmentManager().findFragmentByTag("relation_dialog");
+        if (prev != null) {
+            ft.remove(prev);
+        }
+        ft.addToBackStack(null);
+
+        DialogFragment newFragment = RelationDialogFragment.newInstance(node, type);
+        newFragment.show(ft, "dialog");
     }
 
-    @Override
-    public void onBackPressed() {
-        super.onBackPressed();
-    }
+    //Presenter
 
     @Override
     public void showRelations(LinkedHashMap<Node, Boolean> nodes) {
@@ -93,12 +122,14 @@ public class RelationsActivity extends BaseActivity implements RelationsContract
     }
 
     @Override
-    public void showNoDataMessage() {
+    public void showErrorMessage(String error) {
 
     }
 
-    @Override
-    public void showErrorMessage(String error) {
+    //Dialog fragment
 
+    @Override
+    public void onClickOkButton(long node, boolean type) {
+        presenter.onItemClicked(node, type, adapter.getTypeOfRelation());
     }
 }

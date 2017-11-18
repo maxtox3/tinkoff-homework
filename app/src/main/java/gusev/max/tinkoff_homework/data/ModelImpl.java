@@ -54,4 +54,18 @@ public class ModelImpl implements Model{
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
+
+    @Override
+    public Completable addRelation(long nodeIdFirst, long nodeIdSecond) {
+        return storage.addRelation(nodeIdFirst, nodeIdSecond)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    @Override
+    public Completable removeRelation(long nodeIdFirst, long nodeIdSecond) {
+        return storage.removeRelation(nodeIdFirst, nodeIdSecond)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+    }
 }

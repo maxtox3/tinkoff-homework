@@ -42,6 +42,7 @@ public class NodesListAdapter extends BaseRecyclerViewAdapter<NodesListAdapter.N
         this.nodesColors = new ArrayList<>();
     }
 
+    // methods of super
     @Override
     public NodesListViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = LayoutInflater
@@ -53,9 +54,8 @@ public class NodesListAdapter extends BaseRecyclerViewAdapter<NodesListAdapter.N
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder viewHolder, int i) {
         super.onBindViewHolder(viewHolder, i);
-        NodesListViewHolder vh = (NodesListViewHolder) viewHolder; //safe cast
-        String value = String.valueOf(nodesList.get(i).getValue());//for debug
-        vh.valueTxtView.setText(value);
+        NodesListViewHolder vh = (NodesListViewHolder) viewHolder;
+        vh.valueTxtView.setText(buildValueForTextView(i));
         vh.itemView.findViewById(R.id.node_container).setBackgroundColor(getColor(nodesColors.get(i)));
     }
 
@@ -64,34 +64,20 @@ public class NodesListAdapter extends BaseRecyclerViewAdapter<NodesListAdapter.N
         return nodesList.size();
     }
 
-    private int getColor(byte color) {
+    // Package private methods
 
-        switch (color) {
-
-            case 0:
-                return Color.parseColor("#FFFFFF");
-
-            case 1:
-                return Color.parseColor("#FFEB3B");
-
-            case 2:
-                return Color.parseColor("#2196F3");
-
-            case 3:
-                return Color.parseColor("#F44336");
-
-            default:
-                break;
-        }
-        return Color.parseColor("#FFFFFF");
-    }
-
+    /**
+     * Replace data to new
+     */
     void replaceData(LinkedHashMap<Node, Byte> map) {
         this.nodesList.addAll(map.keySet());
         this.nodesColors.addAll(map.values());
         notifyDataSetChanged();
     }
 
+    /**
+     * Return item by position
+     */
     Node getItem(int position) {
         if (position < 0 || position >= nodesList.size()) {
             throw new InvalidParameterException("Invalid item index");
@@ -103,5 +89,33 @@ public class NodesListAdapter extends BaseRecyclerViewAdapter<NodesListAdapter.N
         nodesList.clear();
         nodesColors.clear();
         notifyDataSetChanged();
+    }
+
+    // Private methods
+
+    private String buildValueForTextView(int i){
+        return "id: " + String.valueOf(nodesList.get(i).getId()) + " | value: " + String.valueOf(nodesList.get(i).getValue());
+    }
+
+    private int getColor(byte color) {
+
+        switch (color) {
+
+            case 0:
+                return Color.parseColor("#FFFFFF");// White color
+
+            case 1:
+                return Color.parseColor("#FFEB3B");// Yellow color
+
+            case 2:
+                return Color.parseColor("#2196F3");// Blue color
+
+            case 3:
+                return Color.parseColor("#F44336");// Red color
+
+            default:
+                break;
+        }
+        return Color.parseColor("#FFFFFF");
     }
 }

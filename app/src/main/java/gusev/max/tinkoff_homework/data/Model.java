@@ -20,4 +20,8 @@ public interface Model {
 
     Single<LinkedHashMap<Node, Boolean>> getNodesWithParentRelations(long childNodeId);
 
+    Completable addRelation(long nodeIdFirst, long nodeIdSecond);
+
+    Completable removeRelation(long nodeIdFirst, long nodeIdSecond);
+
 }

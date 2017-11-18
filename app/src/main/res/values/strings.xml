@@ -1,7 +1,10 @@
 <resources>
     <string name="app_name">tinkoff-homework</string>
-    <string name="add">добавить</string>
-    <string name="cancel">отмена</string>
-    <string name="children">Дети</string>
-    <string name="parents">Родители</string>
+    <string name="add">add</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+    <string name="children">Children</string>
+    <string name="parents">Parents</string>
+    <string name="value">Value</string>
+    <string name="empty">Empty!</string>
 </resources>

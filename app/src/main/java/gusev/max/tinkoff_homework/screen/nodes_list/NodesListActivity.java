@@ -35,21 +35,24 @@ public class NodesListActivity extends BaseActivity implements NodesListContract
     }
 
     private void setupWidgets() {
-        //
+        //init dialog
         dialog = new AddNodeDialogFragment();
         //fab
         fab.setOnClickListener(view -> dialog.show(getFragmentManager(), "dlg"));
-
-        // Setup recycler view
+        //init adapter
         adapter = new NodesListAdapter();
+        // Setup recycler view
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(adapter);
         recyclerView.setItemAnimator(new DefaultItemAnimator());
+        //init presenter
         presenter = new NodesListPresenter(this);
         adapter.setOnItemClickListener(
-                (view, position) -> presenter.onItemClicked(adapter.getItem(position).getId()));
+                (view, position) -> presenter.onItemClicked(adapter.getItem(position)));
     }
+
+    // NodesListContract
 
     @Override
     public void showNodes(LinkedHashMap<Node, Byte> nodes) {
@@ -62,18 +65,13 @@ public class NodesListActivity extends BaseActivity implements NodesListContract
     }
 
     @Override
-    public void showNoDataMessage() {
-
-    }
-
-    @Override
     public void showErrorMessage(String error) {
 
     }
 
     @Override
-    public void showNodeDetails(long nodeId) {
-        RelationsActivity.start(this, nodeId);
+    public void showNodeRelations(Node node) {
+        RelationsActivity.start(this, node);
     }
 
     //ActivityCallbacks

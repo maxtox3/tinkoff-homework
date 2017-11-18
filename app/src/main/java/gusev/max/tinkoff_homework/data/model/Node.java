@@ -1,12 +1,13 @@
 package gusev.max.tinkoff_homework.data.model;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by v on 13/11/2017.
  */
 
-public class Node {
+public class Node implements Serializable {
 
     private long id;
     private int value;
@@ -26,10 +27,6 @@ public class Node {
 
     public void setValue(int value) {
         this.value = value;
-    }
-
-    public List<Node> getNodes() {
-        return nodes;
     }
 
     public void setNodes(List<Node> nodes) {
