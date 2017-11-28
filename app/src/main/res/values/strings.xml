@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">tinkoff-homework</string>
+    <string name="error_unkn">Произошла ошибка.</string>
 </resources>
